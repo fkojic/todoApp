@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState} from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Header from "./components/header";
 import ToDoItem from "./components/todoItem";
+import AddToDo from "./components/addTodo";
+import Sandbox from "./components/sandbox";
 
 export default function App() {
   const [todos, setTodos] = useState([
@@ -17,23 +19,47 @@ export default function App() {
     });
   } 
 
+  const submitHandler = (text) => {
+    if(text.length > 3) {
+      setTodos((prevTodos) => {
+        return [
+          { text: text, key: Math.random().toString() },
+          ...prevTodos,
+        ]
+      });
+    } else {
+      Alert.alert("Ups...", "Todo must be over 3 chars long!", [
+        {text: "Okeej", onPress: () => console.log("alert closed")}
+      ])
+    }
+  }
+
   return (
-    <View style={styles.container}>
-      {/* header */}
-      <Header style={styles.header} />
-      <View style={styles.content}>
-        {/* to form */}
-        <View style={styles.list}>
-          <FlatList
-            keyExtractor={(item) => item.key}
-            data={todos}
-            renderItem={({ item }) => (
-              <ToDoItem item={item} pressHandler={pressHandler} />
-            )}
-          />
+    // <Sandbox /> test view for flex
+
+    <TouchableWithoutFeedback
+      onPress={() => {
+          Keyboard.dismiss();
+          console.log("keyboard dismiss");
+      }}>
+      <View style={styles.container}>
+        {/* header */}
+        <Header />
+        <View style={styles.content}>
+          {/* to form */}
+          <AddToDo submitHandler={ submitHandler } />
+          <View style={styles.list}>
+            <FlatList
+              keyExtractor={(item) => item.key}
+              data={todos}
+              renderItem={({ item }) => (
+                <ToDoItem item={item} pressHandler={pressHandler} />
+              )}
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -44,8 +70,10 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 40,
+    flex: 1,
   },
   list: {
+    flex: 1,
     marginTop: 20,
   },
 
